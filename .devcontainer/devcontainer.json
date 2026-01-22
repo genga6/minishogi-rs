@@ -1,0 +1,24 @@
+{
+  "name": "minishogi-rs",
+  "dockerComposeFile": "compose.yml",
+  "service": "minishogi-rs",
+  "workspaceFolder": "/workspaces/minishogi-rs",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer", // Official Rust language support (completion, definition, etc.)
+        "vadimcn.vscode-lldb", // Native debugger for Rust
+        "tamasfe.even-better-toml", // Syntax highlighting and formatting for TOML files
+        "usernamehw.errorlens" // Highlight errors and warnings inline
+      ],
+      "settings": {
+        "editor.formatOnSave": true, // Automatically format code when saving
+        "rust-analyzer.checkOnSave": true,
+        "rust-analyzer.check.command": "clippy", // Use 'clippy' (linter) instead of 'cargo check' on save
+        "rust-analyzer.cargo.features": "all", // Enable all Cargo features for analysis
+        "rust-analyzer.inlayHints.enable": true // Show inferred types and parameter names in the editor
+      }
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh"
+}
