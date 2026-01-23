@@ -1,7 +1,7 @@
 use crate::board::{Board, PieceType, Player};
 
 pub fn print_board(board: &Board) {
-    println!("   1   2   3   4   5");
+    println!("   5   4   3   2   1");
     println!(" +---+---+---+---+---+");
 
     for (y, row) in board.iter().enumerate() {

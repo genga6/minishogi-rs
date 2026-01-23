@@ -32,14 +32,45 @@ pub type Board = [[Option<Piece>; 5]; 5];
 pub fn init() -> Board {
     let mut board: Board = [[None; 5]; 5];
 
-    // King だけ配置してみる
-    board[0][2] = Some(Piece {
-        piece_type: PieceType::King,
+    // 後手
+    let gote_pieces = [
+        PieceType::King,
+        PieceType::Gold,
+        PieceType::Silver,
+        PieceType::Bishop,
+        PieceType::Rook,
+    ];
+
+    for (x, &pt) in gote_pieces.iter().enumerate() {
+        board[0][x] = Some(Piece {
+            piece_type: pt,
+            owner: Player::Gote,
+        });
+    }
+
+    board[1][0] = Some(Piece {
+        piece_type: PieceType::Pawn,
         owner: Player::Gote,
     });
 
-    board[4][2] = Some(Piece {
-        piece_type: PieceType::King,
+    // 先手
+    let sente_pieces = [
+        PieceType::Rook,
+        PieceType::Bishop,
+        PieceType::Silver,
+        PieceType::Gold,
+        PieceType::King,
+    ];
+
+    for (x, &pt) in sente_pieces.iter().enumerate() {
+        board[4][x] = Some(Piece {
+            piece_type: pt,
+            owner: Player::Sente,
+        });
+    }
+
+    board[3][4] = Some(Piece {
+        piece_type: PieceType::Pawn,
         owner: Player::Sente,
     });
 
