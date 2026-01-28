@@ -165,3 +165,20 @@ fn get_stepping_offsets(player: Player, p_type: PieceType) -> Vec<(i8, i8)> {
 
     offsets
 }
+
+pub fn make_move(board: &Board, mv: Move) -> Board {
+    // 元のboardを保持（&Board）し、複製（*board）した盤面を書き換えて（mut）返す
+    let mut new_board = *board;
+
+    match mv {
+        Move::To(from, to) => {
+            let piece = new_board[from.y][from.x].expect("move_from position should have a piece");
+
+            new_board[to.y][to.x] = Some(piece);
+
+            new_board[from.y][from.x] = None;
+        }
+    }
+
+    new_board
+}
