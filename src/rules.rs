@@ -1,4 +1,4 @@
-use crate::board::{Board, PieceType, Player};
+use crate::board::{Board, GameState, Piece, PieceType, Player};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
@@ -14,20 +14,41 @@ impl Position {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Move {
-    To(Position, Position), // (from, to)
-                            // Drop(Position, PieceType), // (to, type)
+    To(Position, Position),    // (from, to)
+    Drop(Position, PieceType), // (to, type)
 }
 
-pub fn generate_legal_moves(board: &Board, player: Player) -> Vec<Move> {
+pub fn generate_legal_moves(state: &GameState, player: Player) -> Vec<Move> {
     let mut moves = Vec::new();
 
     for y in 0..5 {
         for x in 0..5 {
-            if let Some(piece) = board[y][x]
+            if let Some(piece) = state.board[y][x]
                 && piece.owner == player
             {
                 let from = Position::new(x, y);
-                add_move_for_piece(&mut moves, board, player, piece.piece_type, from);
+                add_move_for_piece(&mut moves, &state.board, player, piece.piece_type, from);
+            }
+        }
+    }
+
+    let hand = state.get_hand(player);
+    let piece_types = [
+        PieceType::Pawn,
+        PieceType::Silver,
+        PieceType::Gold,
+        PieceType::Bishop,
+        PieceType::Rook,
+    ];
+
+    for &piece_type in &piece_types {
+        if hand.get(piece_type) > 0 {
+            for y in 0..5 {
+                for x in 0..5 {
+                    if state.board[y][x].is_none() {
+                        moves.push(Move::Drop(Position::new(x, y), piece_type));
+                    }
+                }
             }
         }
     }
@@ -164,4 +185,33 @@ fn get_stepping_offsets(player: Player, p_type: PieceType) -> Vec<(i8, i8)> {
     }
 
     offsets
+}
+
+pub fn make_move(state: &GameState, mv: Move, player: Player) -> GameState {
+    let mut new_state = *state;
+
+    match mv {
+        Move::To(from, to) => {
+            let piece =
+                new_state.board[from.y][from.x].expect("move_from position should have a piece");
+
+            if let Some(captured) = new_state.board[to.y][to.x] {
+                new_state.get_hand_mut(player).add(captured.piece_type);
+            }
+
+            new_state.board[to.y][to.x] = Some(piece);
+            new_state.board[from.y][from.x] = None;
+        }
+        Move::Drop(to, piece_type) => {
+            if new_state.get_hand_mut(player).remove(piece_type) {
+                let piece = Piece {
+                    piece_type,
+                    owner: player,
+                };
+                new_state.board[to.y][to.x] = Some(piece);
+            }
+        }
+    }
+
+    new_state
 }
