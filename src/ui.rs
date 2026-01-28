@@ -1,11 +1,13 @@
 use crate::board::{Board, GameState, Hand, PieceType, Player};
 
 pub fn print_board(board: &Board) {
-    println!("   5   4   3   2   1");
-    println!(" +---+---+---+---+---+");
+    println!("     5   4   3   2   1");
+    println!("   +---+---+---+---+---+");
+
+    let row_labels = ['a', 'b', 'c', 'd', 'e'];
 
     for (y, row) in board.iter().enumerate() {
-        print!("{}|", y + 1);
+        print!(" {}|", row_labels[y]);
 
         for cell in row.iter() {
             match cell {
@@ -24,7 +26,8 @@ pub fn print_board(board: &Board) {
                 None => print!(" . |"),
             }
         }
-        println!("\n +---+---+---+---+---+");
+        println!();
+        println!("   +---+---+---+---+---+");
     }
 }
 
