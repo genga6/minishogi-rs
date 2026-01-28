@@ -3,11 +3,11 @@ use minishogi_rs::{board, rules, ui};
 fn main() {
     println!("=== 5×5 Shogi Start ===");
 
-    let mut b = board::init();
-    ui::print_board(&b);
+    let mut state = board::init();
+    ui::print_game_state(&state);
 
     println!("\n--- Sente's Legal Moves ---");
-    let moves = rules::generate_legal_moves(&b, board::Player::Sente);
+    let moves = rules::generate_legal_moves(&state, board::Player::Sente);
     println!("Total: {} moves", moves.len());
 
     if let Some(first_move) = moves.first() {
@@ -17,14 +17,17 @@ fn main() {
             rules::Move::To(from, to) => {
                 println!("Move: ({}, {}) -> ({}, {})", from.x, from.y, to.x, to.y);
             }
+            rules::Move::Drop(to, piece_type) => {
+                println!("Drop: {:?} at ({}, {})", piece_type, to.x, to.y);
+            }
         }
 
-        b = rules::make_move(&b, *first_move);
+        state = rules::make_move(&state, *first_move, board::Player::Sente);
         println!("\n--- After move ---");
-        ui::print_board(&b);
+        ui::print_game_state(&state);
 
         println!("\n--- Gote's Legal Moves ---");
-        let gote_moves = rules::generate_legal_moves(&b, board::Player::Gote);
+        let gote_moves = rules::generate_legal_moves(&state, board::Player::Gote);
         println!("Total: {} moves", gote_moves.len());
     }
 }
