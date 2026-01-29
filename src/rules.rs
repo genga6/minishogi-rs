@@ -249,7 +249,7 @@ fn get_stepping_offsets(player: Player, p_type: PieceType) -> Vec<(i8, i8)> {
     offsets
 }
 
-fn opponent_of(player: Player) -> Player {
+pub fn opponent_of(player: Player) -> Player {
     match player {
         Player::Sente => Player::Gote,
         Player::Gote => Player::Sente,
