@@ -13,13 +13,23 @@ pub fn print_board(board: &Board) {
             match cell {
                 Some(p) => {
                     let owner_mark = if p.owner == Player::Sente { " " } else { "^" };
-                    let name = match p.piece_type {
-                        PieceType::King => "王",
-                        PieceType::Gold => "金",
-                        PieceType::Silver => "銀",
-                        PieceType::Bishop => "角",
-                        PieceType::Rook => "飛",
-                        PieceType::Pawn => "歩",
+                    let name = if p.promoted {
+                        match p.piece_type {
+                            PieceType::Pawn => "と",
+                            PieceType::Silver => "全",
+                            PieceType::Bishop => "馬",
+                            PieceType::Rook => "龍",
+                            _ => unreachable!(),
+                        }
+                    } else {
+                        match p.piece_type {
+                            PieceType::King => "王",
+                            PieceType::Gold => "金",
+                            PieceType::Silver => "銀",
+                            PieceType::Bishop => "角",
+                            PieceType::Rook => "飛",
+                            PieceType::Pawn => "歩",
+                        }
                     };
                     print!("{}{}|", owner_mark, name);
                 }

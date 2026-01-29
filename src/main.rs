@@ -36,6 +36,7 @@ fn main() {
         loop {
             println!("\n入力形式:");
             println!("  移動: <from> <to> (例: 1e 1d)");
+            println!("  成り: <from> <to>+ (例: 1e 1d+)");
             println!("  打つ: drop <駒> <to> (例: drop 金 3c)");
             println!("  終了: quit");
             print!("> ");
@@ -87,13 +88,19 @@ fn parse_input(input: &str, legal_moves: &[rules::Move]) -> Result<rules::Move, 
         rules::Move::Drop(to, piece_type)
     } else {
         if parts.len() != 2 {
-            return Err("移動の形式: <from> <to>".to_string());
+            return Err("移動の形式: <from> <to> または <from> <to>+".to_string());
         }
 
         let from = parse_position(parts[0])?;
-        let to = parse_position(parts[1])?;
+        let promote = parts[1].ends_with('+');
+        let to_str = if promote {
+            &parts[1][..parts[1].len() - 1]
+        } else {
+            parts[1]
+        };
+        let to = parse_position(to_str)?;
 
-        rules::Move::To(from, to)
+        rules::Move::To(from, to, promote)
     };
 
     if !legal_moves.contains(&mv) {
