@@ -18,6 +18,7 @@ pub enum PieceType {
 pub struct Piece {
     pub piece_type: PieceType,
     pub owner: Player,
+    pub promoted: bool,
 }
 
 // [行(y)][列(x)]
@@ -136,12 +137,14 @@ pub fn init() -> GameState {
         board[0][x] = Some(Piece {
             piece_type: pt,
             owner: Player::Gote,
+            promoted: false,
         });
     }
 
     board[1][0] = Some(Piece {
         piece_type: PieceType::Pawn,
         owner: Player::Gote,
+        promoted: false,
     });
 
     // 先手
@@ -157,12 +160,14 @@ pub fn init() -> GameState {
         board[4][x] = Some(Piece {
             piece_type: pt,
             owner: Player::Sente,
+            promoted: false,
         });
     }
 
     board[3][4] = Some(Piece {
         piece_type: PieceType::Pawn,
         owner: Player::Sente,
+        promoted: false,
     });
 
     GameState {
