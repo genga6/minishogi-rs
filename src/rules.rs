@@ -19,7 +19,7 @@ pub enum Move {
 }
 
 pub fn generate_legal_moves(state: &GameState, player: Player) -> Vec<Move> {
-    let mut moves = generate_moves(state, player);
+    let mut moves = generate_moves_fast(state, player);
 
     // 打ち歩詰めチェック: 歩のdropで相手が詰みになる手を除外
     let opponent = opponent_of(player);
@@ -36,7 +36,8 @@ pub fn generate_legal_moves(state: &GameState, player: Player) -> Vec<Move> {
 }
 
 /// 二歩チェック付きの手生成（打ち歩詰めチェックなし）
-fn generate_moves(state: &GameState, player: Player) -> Vec<Move> {
+/// プレイアウト等の高速処理用に公開
+pub fn generate_moves_fast(state: &GameState, player: Player) -> Vec<Move> {
     let mut moves = Vec::new();
 
     for y in 0..5 {
@@ -249,7 +250,7 @@ fn get_stepping_offsets(player: Player, p_type: PieceType) -> Vec<(i8, i8)> {
     offsets
 }
 
-fn opponent_of(player: Player) -> Player {
+pub fn opponent_of(player: Player) -> Player {
     match player {
         Player::Sente => Player::Gote,
         Player::Gote => Player::Sente,
@@ -355,7 +356,7 @@ fn is_checkmate(state: &GameState, player: Player) -> bool {
         return false;
     }
 
-    let moves = generate_moves(state, player);
+    let moves = generate_moves_fast(state, player);
     for mv in moves {
         let new_state = make_move(state, mv, player);
         if !is_in_check(&new_state, player) {

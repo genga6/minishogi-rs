@@ -1,39 +1,75 @@
-use crate::board::{Board, GameState, Hand, PieceType, Player};
+use crate::board::{GameState, Hand, PieceType, Player};
+use crate::rules::Position;
 
-pub fn print_board(board: &Board) {
-    println!("     5   4   3   2   1");
-    println!("   +---+---+---+---+---+");
+fn piece_name(piece_type: PieceType, promoted: bool) -> &'static str {
+    if promoted {
+        match piece_type {
+            PieceType::Pawn => "と",
+            PieceType::Silver => "全",
+            PieceType::Bishop => "馬",
+            PieceType::Rook => "龍",
+            _ => unreachable!(),
+        }
+    } else {
+        match piece_type {
+            PieceType::King => "王",
+            PieceType::Gold => "金",
+            PieceType::Silver => "銀",
+            PieceType::Bishop => "角",
+            PieceType::Rook => "飛",
+            PieceType::Pawn => "歩",
+        }
+    }
+}
 
+pub fn print_board(state: &GameState, perspective: Player, last_move_to: Option<Position>) {
     let row_labels = ['a', 'b', 'c', 'd', 'e'];
 
-    for (y, row) in board.iter().enumerate() {
+    // 視点に応じて列ヘッダと行の走査順を変える
+    match perspective {
+        Player::Sente => {
+            println!("     5   4   3   2   1");
+        }
+        Player::Gote => {
+            println!("     1   2   3   4   5");
+        }
+    }
+    println!("   +---+---+---+---+---+");
+
+    for i in 0..5 {
+        let y = match perspective {
+            Player::Sente => i,
+            Player::Gote => 4 - i,
+        };
+
         print!(" {}|", row_labels[y]);
 
-        for cell in row.iter() {
-            match cell {
+        for j in 0..5 {
+            let x = match perspective {
+                Player::Sente => j,
+                Player::Gote => 4 - j,
+            };
+
+            let is_last_move = last_move_to.is_some_and(|p| p.x == x && p.y == y);
+
+            match state.board[y][x] {
                 Some(p) => {
-                    let owner_mark = if p.owner == Player::Sente { " " } else { "^" };
-                    let name = if p.promoted {
-                        match p.piece_type {
-                            PieceType::Pawn => "と",
-                            PieceType::Silver => "全",
-                            PieceType::Bishop => "馬",
-                            PieceType::Rook => "龍",
-                            _ => unreachable!(),
-                        }
+                    let mark = if is_last_move {
+                        "*"
+                    } else if p.owner == Player::Sente {
+                        " "
                     } else {
-                        match p.piece_type {
-                            PieceType::King => "王",
-                            PieceType::Gold => "金",
-                            PieceType::Silver => "銀",
-                            PieceType::Bishop => "角",
-                            PieceType::Rook => "飛",
-                            PieceType::Pawn => "歩",
-                        }
+                        "^"
                     };
-                    print!("{}{}|", owner_mark, name);
+                    print!("{}{}|", mark, piece_name(p.piece_type, p.promoted));
                 }
-                None => print!(" . |"),
+                None => {
+                    if is_last_move {
+                        print!("*. |");
+                    } else {
+                        print!(" . |");
+                    }
+                }
             }
         }
         println!();
@@ -73,12 +109,22 @@ pub fn print_hand(hand: &Hand, player: Player) {
     }
 }
 
-pub fn print_game_state(state: &GameState) {
+pub fn print_game_state(
+    state: &GameState,
+    perspective: Player,
+    last_move_to: Option<Position>,
+) {
+    // 相手の持ち駒を上、自分の持ち駒を下に表示
+    let (top_player, bottom_player) = match perspective {
+        Player::Sente => (Player::Gote, Player::Sente),
+        Player::Gote => (Player::Sente, Player::Gote),
+    };
+
     println!();
-    print_hand(&state.gote_hand, Player::Gote);
+    print_hand(state.get_hand(top_player), top_player);
     println!();
-    print_board(&state.board);
+    print_board(state, perspective, last_move_to);
     println!();
-    print_hand(&state.sente_hand, Player::Sente);
+    print_hand(state.get_hand(bottom_player), bottom_player);
     println!();
 }
